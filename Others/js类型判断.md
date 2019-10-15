@@ -14,6 +14,9 @@ js 数据类型如下：
   - Symbol
 - Object 类型
 
+>首先原始类型存储的都是值，是没有函数可以调用的
+>number可以表示2^53 Bigint可以表示任意大的数
+
 ### typeof
 
 一般用于判断值是不是**undefined**
