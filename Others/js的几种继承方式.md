@@ -15,22 +15,6 @@ js 的继承实现依靠原型链。
 原型对象都包含一个指向构造函数的指针
 实例都包含一个原型对象的指针
 
-```javascript
-function a() {}
-let aa = new a();
-
-//a的原型
-a.prototype;
-//构造函数就是a自己
-a.prototype.constructor === a;
-//实例aa的原型对象a.prototype
-a.prototype === aa.__proto__;
-```
-
-1. constructor 总是指向类的构造函数
-2. **\_**proto\_\*\*\*\*指向父类的原型对象
-3. instanceof 可以判断构造函数的继承关系
-
 - 原型链继承
   - 不能传父类参数
   - 不能多继承
@@ -215,4 +199,27 @@ c1.name; //"cc"
 c1.book; //["c", "c++", "c#","js"]
 c1.__proto__.name; //undefined
 c1.__proto__.book; //undefined
+```
+
+- babel
+
+```javascript
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: { value: subClass, writable: true, configurable: true }
+  });
+  if (superClass) _setPrototypeOf(subClass, superClass);
+}
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf =
+    Object.setPrototypeOf ||
+    function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+  return _setPrototypeOf(o, p);
+}
 ```

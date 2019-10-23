@@ -89,6 +89,11 @@ setTimeout(function() {
 
 就是通过 call,apply,bind 的方式，显式的指定 this 所指向的对象。call 和 apply 的作用一样，只是传参方式不同。call 参数列表 apply 多个参数的数组
 
+```
+foo.apply(bar, [1, 2, 3]); // 数组将会被扩展，如下所示
+foo.call(bar, 1, 2, 3); // 传递到foo的参数是：a = 1, b = 2, c = 3
+```
+
 ```javascript
 function sayHi() {
   console.log("Hello,", this.name);
