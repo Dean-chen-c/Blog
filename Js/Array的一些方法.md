@@ -43,6 +43,19 @@ const toObject = arr.reduce((acc, current) => {
 console.log(toObject);
 ```
 
+- 统计字符串字符个数
+
+```javascript
+"ssadsa".split("").reduce((a, b) => {
+  if (typeof a[b] === "undefined") {
+    a[b] = 1;
+  } else {
+    a[b]++;
+  }
+  return a;
+}, {});
+```
+
 push pop unshift shift
 
 ```javascript
