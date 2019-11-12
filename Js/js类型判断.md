@@ -4,7 +4,7 @@
 
 js 数据类型如下：
 
-- 7 种原始类型
+- 7 种原始类型(基本)
   - Number
   - String
   - Boolean
@@ -12,7 +12,7 @@ js 数据类型如下：
   - undefine
   - BigInt
   - Symbol
-- Object 类型
+- Object 类型（引用）
 
 > 首先原始类型存储的都是**值**，是没有函数可以调用的
 > number 可以表示 2^53 Bigint 可以表示**任意大**的数
@@ -31,6 +31,7 @@ typeof undefined; // 'undefined'
 typeof true; // 'boolean'
 typeof Symbol(); // 'symbol'
 typeof null; // 'object'
+typeof console.log; //function
 ```
 
 ### instanceof
@@ -47,6 +48,8 @@ new Number(1) instanceof Number;
 true;
 ```
 
+#### instanceof 能否判断基本数据类型？
+
 > **Symbol.hasInstance** 用于判断某对象是否为某构造器的实例。 因此你可以用它自定义 instanceof 操作符在某个类上的行为。
 
 ```javascript
@@ -60,6 +63,21 @@ console.log([] instanceof MyArray); // true
 class MyString {
   static [Symbol.hasInstance](instance) {
     return typeof instance === "string";
+  }
+}
+```
+
+#### 手动实现 instanceof
+
+```javascript
+function myInstanceof(left, right) {
+  if (typeof left !== "object" || left === null) return false;
+  const rightPrototype = right.prototype;
+  let proto = left.__proto__; //Object.getPrototypeOf()
+  while (true) {
+    if (proto === null) return false;
+    if (proto === rightPrototype) return true;
+    proto = left.__proto__;
   }
 }
 ```
@@ -93,25 +111,37 @@ Array.isArray()
 
 #### 转 Boolean
 
-显式：Boolean()
-
-转换为 false：
-
-- undefined
-- null
-- fasle
-- ''
-- 0
-- -0
-- NaN
+| 原始值    | 转换目标 | 结果                  |
+| --------- | :------: | --------------------- |
+| number    | Boolean  | 除 0 -0 NaN 都为 true |
+| string    | Boolean  | 除''都为 true         |
+| undefined | Boolean  | false                 |
+| null      | Boolean  | false                 |
+| Object    | Boolean  | true                  |
 
 #### 转 String
 
 显式：toString() String()
 
+| 原始值           | 转换目标 | 结果              |
+| ---------------- | :------: | ----------------- |
+| number           |  String  | '1'               |
+| boolean function |  String  | 'function(){}'    |
+| array            |  String  | '' '1,2,3'        |
+| null,undefined   |  String  | 'null undefined'  |
+| Object           |  String  | '[object Object]' |
+
 #### 转 Number
 
 显式：Number()
+
+| 原始值    | 转换目标 | 结果        |
+| --------- | :------: | ----------- |
+| string    |  String  | 'a'-->'NaN' |
+| object    |  String  | NaN         |
+| array     |  String  | [][1] ['a'] |
+| null      |  String  | 0           |
+| undefined |  String  | NaN         |
 
 #### 对象转原始类型
 
@@ -135,6 +165,19 @@ let a = {
 1 + a; // => 3
 
 "a" + +"b"; // -> "aNaN"
+```
+
+如何让 if(a == 1 && a == 2)条件成立
+
+```javascript
+var a = {
+  value: 0,
+  valueOf: function() {
+    this.value++;
+    return this.value;
+  }
+};
+console.log(a == 1 && a == 2);
 ```
 
 ### 隐式强制类型转换

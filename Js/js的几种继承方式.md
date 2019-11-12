@@ -211,6 +211,7 @@ function _inherits(subClass, superClass) {
   subClass.prototype = Object.create(superClass && superClass.prototype, {
     constructor: { value: subClass, writable: true, configurable: true }
   });
+  //继承父类的静态方法
   if (superClass) _setPrototypeOf(subClass, superClass);
 }
 function _setPrototypeOf(o, p) {

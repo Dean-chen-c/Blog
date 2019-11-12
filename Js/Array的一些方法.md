@@ -71,11 +71,44 @@ const arr = Array(10).fill(0);
 
 every
 
-- 妙用如果存在 false 直接跳出循环
+- 妙用如果存在 false 直接跳出循环(some 相反 存在 true 跳出)
 
 ```javascript
 [1, 3, 4, 5, -1, 4, 4].every(item => {
   console.log(item);
   return item > 0;
 });
+```
+
+flat
+
+- 数组扁平化
+
+```javascript
+[1, [3, [4], 5], -1, 4, 4].flat();
+
+function myFlat(arr) {
+  while (arr.some(Array.isArray())) {
+    //  arr = ([]).concat.apply([], arr);
+    arr = [].concat(...arr);
+  }
+  return arr;
+}
+
+const _selfFlat = function(n = 1) {
+  const arr = Array.prototype.slice.call(this);
+  if (n <= 0) {
+    return arr;
+  }
+  return arr.reduce((pre, cur, index) => {
+    if (Array.isArray(cur)) {
+      return [...pre, ..._selfFlat.call(cur, n - 1)];
+    } else {
+      return [...pre, cur];
+    }
+  }, []);
+};
+Array.prototype.selfFlat = _selfFlat;
+const a = [1, 2, 3, 4, [5, 6, [7, 8, 9]]];
+console.log(a.selfFlat(1));
 ```
