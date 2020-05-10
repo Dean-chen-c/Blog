@@ -2,13 +2,13 @@
 
 ---
 
-入口起点(entry points)
-输出(output)
-模式(mode)
-loader
-插件(plugins)
-配置(configuration)
-模块(modules)
+- 入口起点(entry points)
+- 输出(output)
+- 模式(mode)
+- loader
+- 插件(plugins)
+- 配置(configuration)
+- 模块(modules)
 
 ```javascript
 //  路径模块提供用于处理文件和目录路径的实用程序

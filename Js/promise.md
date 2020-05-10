@@ -1,3 +1,4 @@
+```js
 console.log('1');
 
 setTimeout(function() {
@@ -33,5 +34,8 @@ resolve();
 }).then(function() {
 console.log('12')
 })
+```
+
+
 
     1 7 8 2 4 9 11 5 12
