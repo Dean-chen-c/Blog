@@ -4,11 +4,12 @@
 
 - 入口起点(entry points)
 - 输出(output)
-- 模式(mode)
-- loader
+- 模式(mode) （development，production）
+- loader（webpack 只能理解 JavaScript 和 JSON 文件。**loader** 让 webpack 能够去处理其他类型的文件）
+- 模块解析(resolve ) （别名，alias）
 - 插件(plugins)
 - 配置(configuration)
-- 模块(modules)
+- 模块(module)
 
 ```javascript
 //  路径模块提供用于处理文件和目录路径的实用程序
@@ -289,7 +290,7 @@ module.exports = () => {
               use: {
                 loader: require.resolve("url-loader"),
                 options: {
-                  // 大小低于limit的图片将被生成base64 编码的图片直接插入到css 文件中
+                  // url-loader大小低于limit的图片将被生成base64 编码的图片直接插入到css 文件中
                   limit: 10000,
                   name: isDev
                     ? "assets/[name].[ext]"
