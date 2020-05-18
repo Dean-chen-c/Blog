@@ -88,7 +88,7 @@ function myInstanceof(left, right) {
 function type(obj) {
   return Object.prototype.toString
     .call(obj)
-    .replace(/\[object\s(\w+)\]$/, "$1")
+    .replace(/^\[object\s(\w+)\]$/, "$1")
     .toLowerCase();
 }
 ```

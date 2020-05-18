@@ -7,6 +7,7 @@
 - 模式(mode) （development，production）
 - loader（webpack 只能理解 JavaScript 和 JSON 文件。**loader** 让 webpack 能够去处理其他类型的文件）
 - 模块解析(resolve ) （别名，alias）
+- devServer   host
 - 插件(plugins)
 - 配置(configuration)
 - 模块(module)
