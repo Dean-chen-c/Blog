@@ -87,18 +87,25 @@ function myPromise(fn) {
   _this.resolvedCallbacks = [];
   _this.rejectedCallbacks = [];
   function resolve(value) {
-    if (_this.state === PENDING) {
-      _this.state = RESOLVED;
-      _this.value = value;
-      _this.resolvedCallbacks.map((cb) => cb(_this.value));
-    }
+    // if (value instanceof myPromise) {
+    //   return value.then(resolve, reject);
+    // }
+    setTimeout(() => {
+      if (_this.state === PENDING) {
+        _this.state = RESOLVED;
+        _this.value = value;
+        _this.resolvedCallbacks.map((cb) => cb());
+      }
+    }, 0);
   }
   function reject(value) {
-    if (_this.state === PENDING) {
-      _this.state = REJECTED;
-      _this.value = value;
-      _this.rejectedCallbacks.map((cb) => cb(_this.value));
-    }
+    setTimeout(() => {
+      if (_this.state === PENDING) {
+        _this.state = REJECTED;
+        _this.value = value;
+        _this.rejectedCallbacks.map((cb) => cb());
+      }
+    }, 0);
   }
   try {
     fn(resolve, reject);
@@ -106,6 +113,7 @@ function myPromise(fn) {
     reject(error);
   }
 }
+
 myPromise.prototype.then = function (onFulfilled, onRejected) {
   const _this = this;
   onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (v) => v;
@@ -116,59 +124,108 @@ myPromise.prototype.then = function (onFulfilled, onRejected) {
           throw r;
         };
   if (_this.state === PENDING) {
-    // _this.resolvedCallbacks.push(onFulfilled);
-    // _this.rejectedCallbacks.push(onRejected);
-    return new Promise(function (resolve, reject) {
-      _this.resolvedCallbacks.push(function (value) {
+    return (promise2 = new Promise((resolve, reject) => {
+      _this.resolvedCallbacks.push(() => {
+        // setTimeout(() => {
         try {
-        } catch (error) {}
+          const x = onFulfilled(_this.value);
+          resolutionProcedure(promise2, x, resolve, reject);
+        } catch (error) {
+          reject(error);
+        }
+        // }, 0);
       });
-    });
+      _this.rejectedCallbacks.push(() => {
+        // setTimeout(() => {
+        try {
+          const x = onRejected(_this.value);
+          resolutionProcedure(promise2, x, resolve, reject);
+        } catch (error) {
+          reject(error);
+        }
+        // }, 0);
+      });
+    }));
   }
   if (_this.state === RESOLVED) {
-    // onFulfilled(_this.value);
-    return new Promise(function (resolve, reject) {
-      try {
-        const ret = onFulfilled(_this.value);
-        if (ret instanceof Promise) {
-          ret.then(resolve, reject);
-        } else {
-          resolve(ret);
+    return (promise2 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const x = onFulfilled(_this.value);
+          resolutionProcedure(promise2, x, resolve, reject);
+        } catch (error) {
+          reject(error);
         }
-      } catch (error) {
-        reject(error);
-      }
-    });
+      }, 0);
+    }));
   }
   if (_this.state === REJECTED) {
-    // onRejected(_this.value);
-    return new Promise(function (resolve, reject) {
-      try {
-        const ret = onRejected(_this.value);
-        if (ret instanceof Promise) {
-          ret.then(resolve, reject);
-        } else {
-          reject(ret);
+    return (promise2 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const x = onRejected(_this.value);
+          resolutionProcedure(promise2, x, resolve, reject);
+        } catch (error) {
+          reject(error);
         }
-      } catch (error) {
-        reject(error);
-      }
-    });
+      }, 0);
+    }));
   }
 };
-new MyPromise((resolve, reject) => {
-  setTimeout(() => {
-    resolve(1);
-  }, 0);
-}).then((value) => {
-  console.log(value);
-});
+
+function resolutionProcedure(promise2, x, resolve, reject) {
+  if (promise2 === x) {
+    return reject(new TypeError("Chaining cycle"));
+  }
+  if (x && (typeof x === "function" || typeof x === "object")) {
+    let called = false;
+    try {
+      const then = x.then;
+      if (typeof then === "function") {
+        then.call(
+          x,
+          (y) => {
+            if (called) return;
+            called = true;
+            resolutionProcedure(promise2, y, resolve, reject);
+          },
+          (r) => {
+            if (called) return;
+            called = true;
+            reject(r);
+          }
+        );
+      } else {
+        if (called) return;
+        called = true;
+        resolve(x);
+      }
+    } catch (error) {
+      if (called) return;
+      called = true;
+      reject(error);
+    }
+  } else {
+    resolve(x);
+  }
+}
+
+// myPromise.defer = myPromise.deferred = function () {
+//   let dfd = {};
+//   dfd.promise = new myPromise((resolve, reject) => {
+//     dfd.resolve = resolve;
+//     dfd.reject = reject;
+//   });
+//   return dfd;
+// };
+
+// module.exports = myPromise;
+
+/*
+	npm install -g promises-aplus-tests
+	promises-aplus-tests index.js
+*/
 
 ```
 
-
-
-```js
-
-```
 
