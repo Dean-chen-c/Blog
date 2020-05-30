@@ -87,25 +87,18 @@ function myPromise(fn) {
   _this.resolvedCallbacks = [];
   _this.rejectedCallbacks = [];
   function resolve(value) {
-    // if (value instanceof myPromise) {
-    //   return value.then(resolve, reject);
-    // }
-    setTimeout(() => {
-      if (_this.state === PENDING) {
-        _this.state = RESOLVED;
-        _this.value = value;
-        _this.resolvedCallbacks.map((cb) => cb());
-      }
-    }, 0);
+    if (_this.state === PENDING) {
+      _this.state = RESOLVED;
+      _this.value = value;
+      _this.resolvedCallbacks.map((cb) => cb());
+    }
   }
   function reject(value) {
-    setTimeout(() => {
-      if (_this.state === PENDING) {
-        _this.state = REJECTED;
-        _this.value = value;
-        _this.rejectedCallbacks.map((cb) => cb());
-      }
-    }, 0);
+    if (_this.state === PENDING) {
+      _this.state = REJECTED;
+      _this.value = value;
+      _this.rejectedCallbacks.map((cb) => cb());
+    }
   }
   try {
     fn(resolve, reject);
@@ -123,32 +116,29 @@ myPromise.prototype.then = function (onFulfilled, onRejected) {
       : (r) => {
           throw r;
         };
-  if (_this.state === PENDING) {
-    return (promise2 = new Promise((resolve, reject) => {
+  let promise2 = new myPromise((resolve, reject) => {
+    if (_this.state === PENDING) {
       _this.resolvedCallbacks.push(() => {
-        // setTimeout(() => {
-        try {
-          const x = onFulfilled(_this.value);
-          resolutionProcedure(promise2, x, resolve, reject);
-        } catch (error) {
-          reject(error);
-        }
-        // }, 0);
+        setTimeout(() => {
+          try {
+            const x = onFulfilled(_this.value);
+            resolutionProcedure(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        }, 0);
       });
       _this.rejectedCallbacks.push(() => {
-        // setTimeout(() => {
-        try {
-          const x = onRejected(_this.value);
-          resolutionProcedure(promise2, x, resolve, reject);
-        } catch (error) {
-          reject(error);
-        }
-        // }, 0);
+        setTimeout(() => {
+          try {
+            const x = onRejected(_this.value);
+            resolutionProcedure(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        }, 0);
       });
-    }));
-  }
-  if (_this.state === RESOLVED) {
-    return (promise2 = new Promise((resolve, reject) => {
+    } else if (_this.state === RESOLVED) {
       setTimeout(() => {
         try {
           const x = onFulfilled(_this.value);
@@ -157,10 +147,7 @@ myPromise.prototype.then = function (onFulfilled, onRejected) {
           reject(error);
         }
       }, 0);
-    }));
-  }
-  if (_this.state === REJECTED) {
-    return (promise2 = new Promise((resolve, reject) => {
+    } else if (_this.state === REJECTED) {
       setTimeout(() => {
         try {
           const x = onRejected(_this.value);
@@ -169,8 +156,9 @@ myPromise.prototype.then = function (onFulfilled, onRejected) {
           reject(error);
         }
       }, 0);
-    }));
-  }
+    }
+  });
+  return promise2;
 };
 
 function resolutionProcedure(promise2, x, resolve, reject) {
@@ -210,21 +198,47 @@ function resolutionProcedure(promise2, x, resolve, reject) {
   }
 }
 
-// myPromise.defer = myPromise.deferred = function () {
-//   let dfd = {};
-//   dfd.promise = new myPromise((resolve, reject) => {
-//     dfd.resolve = resolve;
-//     dfd.reject = reject;
-//   });
-//   return dfd;
-// };
-
-// module.exports = myPromise;
+myPromise.defer = myPromise.deferred = function () {
+  let dfd = {};
+  dfd.promise = new myPromise((resolve, reject) => {
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
+  return dfd;
+};
+myPromise.resolve = function (param) {
+  if (param instanceof myPromise) {
+    return param;
+  }
+  return new myPromise((resolve, reject) => {
+    if (param && param.then && typeof param.then === "function") {
+      setTimeout(() => {
+        param.then(resolve, reject);
+      });
+    } else {
+      resolve(param);
+    }
+  });
+};
+module.exports = myPromise;
 
 /*
 	npm install -g promises-aplus-tests
 	promises-aplus-tests index.js
 */
+// var dummy = { dummy: "dummy" };
+
+// var resolved = function (value) {
+//   var d = myPromise.deferred();
+//   d.resolve(value);
+//   return d.promise;
+// };
+// var promise = resolved(dummy).then(function () {
+//   return promise;
+// });
+// promise.then(null, function (reason) {
+//   console.log("typeError");
+// });
 
 ```
 
