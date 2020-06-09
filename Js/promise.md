@@ -83,14 +83,14 @@ const REJECTED = "rejected";
 function myPromise(fn) {
   const _this = this;
   _this.state = PENDING;
-  _this.value = null;
+  _this.value = null;// 存值
   _this.resolvedCallbacks = [];
   _this.rejectedCallbacks = [];
   function resolve(value) {
     if (_this.state === PENDING) {
       _this.state = RESOLVED;
       _this.value = value;
-      _this.resolvedCallbacks.map((cb) => cb());
+      _this.resolvedCallbacks.map((cb) => cb());// 执行所有回调
     }
   }
   function reject(value) {
@@ -101,7 +101,7 @@ function myPromise(fn) {
     }
   }
   try {
-    fn(resolve, reject);
+    fn(resolve, reject);// 执行fn
   } catch (error) {
     reject(error);
   }
@@ -109,6 +109,7 @@ function myPromise(fn) {
 
 myPromise.prototype.then = function (onFulfilled, onRejected) {
   const _this = this;
+  // 必须为function
   onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (v) => v;
   onRejected =
     typeof onRejected === "function"
@@ -116,9 +117,12 @@ myPromise.prototype.then = function (onFulfilled, onRejected) {
       : (r) => {
           throw r;
         };
+  // 每次都会返回一个新的promise
   let promise2 = new myPromise((resolve, reject) => {
+    //pending 加入回调队列
     if (_this.state === PENDING) {
       _this.resolvedCallbacks.push(() => {
+        //异步保证执行顺序
         setTimeout(() => {
           try {
             const x = onFulfilled(_this.value);
