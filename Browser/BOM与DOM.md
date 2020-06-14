@@ -1,0 +1,112 @@
+# BOM与DOM
+
+- 浏览器的window对象是 BOM 对象，而非js对象。
+- DOM的最根本的对象是BOM的window对象的子对象
+- DOM描述了处理网页内容的方法和接口，BOM描述了与浏览器进行交互的方法和接口
+
+
+
+BOM
+
+- navigator 导航器
+  - appCodeName 浏览器代码
+  - appName 浏览器名称
+  - cookieEnabled 是否启用cookie
+  - platform 操作系统平台
+  - userAgent 
+- screen 显示器
+  - availHeight 可用高度
+  - availWidth 可用宽度
+  - height 屏幕像素高度
+  - width 屏幕像素宽度
+  - colorDepth 颜色位数
+- history 历史对象
+  - back() 返回前一个
+  - forward() 返回下一个
+  - go() 返回某个
+- location 位置
+  - hash 返回(#)后的url
+  - host 返回主机名与端口号
+  - hostname 返回主机名
+  - href 返回完整url
+  - pathname 返回路径
+  - port 返回端口号
+  - protocol 返回协议
+  - search 返回(?)后的url
+  - assign() 加载新的文档
+  - reload() 重新加载文档
+  - replace() 新的文档替换当前文档
+- document **DOM** 文档对象
+  - anchors[] 锚点  （返回包含了name属性的a元素创建的锚）
+  - images[] 图片
+  - links[] 链接 （所有包含href属性的a元素和所有area元素的引用）
+  - forms[] 表单
+  - cookie 
+  - domain 域名
+  - referrer 载入当前文档的文档url
+  - title 文档标题
+  - URL当前文档URL
+  - open() 打开新的文档
+  - close() 关闭文档
+  - write() 当前文档追加写入
+  - writeln() 多个换行
+- 窗口控制
+  - moveBy(水平，垂直) 移动窗口 （必须是window.open创建 只能有一个Tab）
+  - moveTo(x,y) 移动到指定坐标 （必须是window.open创建 只能有一个Tab）
+  - resizeBy(x,y) 改变窗口大小 >0 扩大 <0 缩小 （必须是window.open创建 只能有一个Tab）
+  - resizeTo(x,y) 改变窗口大小为 （必须是window.open创建 只能有一个Tab）
+  - scrollBy(x,y) 窗口滚动
+  - scrollTo(x,y) 移动到指定位置
+- 焦点控制
+  - focus
+  - blur
+- 打开关闭窗口
+  - open
+    - open("URL","窗口名称"，“窗口风格”)
+    - 窗口风格
+      - height >100
+      - width >100
+      - left >0
+      - top >0
+      - location yes/no 是否显示地址栏
+      - menubar 菜单栏
+      - resizable 是否可以改变窗口大小
+      - scrollbars 是否允许出现滚动条
+      - status 状态栏
+      - toolbar 工具栏
+  - close()
+- 定时器
+  - setTimeout(代码，毫秒数)
+  - clearTimeout(定时器)
+  - setInterval(重复代码，毫秒数)
+  - clearInterval(时间间隔器）
+- 对话框
+  - alert()
+  - confirm("字符串") 确认框 确定返回true 取消返回false
+  - prompt("提示字符串"，“缺损文本”) 确定返回文本 取消返回null
+- 属性
+  - 状态栏
+    - defaultStatus 
+    - status
+  - 窗口位置
+    - IE
+      - screenLeft 窗口左上角x坐标
+      - screenTop 窗口左上角Y坐标
+      - document.documentElement.scrollTop 文档向右滚动像素值
+      - document.documentElement.scrollLeft 文档向下滚动像素值
+    - ！IE
+      - screenX 窗口左上角x坐标
+      - screenY 窗口左上角Y坐标
+      - pageXOffset 文档向右滚动像素值
+      - pageYOffset 文档向下滚动像素值
+    - FF
+      - innerHeight 窗口文档显示区高度
+      - innerWidth 窗口文档显示区宽度
+      - outerHeight 窗口外部高度
+      - outerWidth 窗口外部宽度
+  - 其他属性
+    - opener 同域名下跨窗体通讯 一个窗体要包含另外一个窗体的opener
+    - closed 窗口关闭时返回true
+    - name 窗口名称
+    - self 当前窗口引用 window.self===window //true
+
