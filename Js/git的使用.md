@@ -14,3 +14,7 @@ git checkout -- <file>
 git reset HEAD <file>可以把暂存区的修改撤销掉
 
 git rm <file>
+
+
+
+git push --force 强制push

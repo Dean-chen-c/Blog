@@ -11,9 +11,9 @@
 js 的继承实现依靠原型链。
 继承的本质就是**复制**，即重写原型对象，代之以一个新类型的**实例**。
 **构造函数** **原型** **实例** 三者之间的关系
-每个构造函数都有一个原型对象
-原型对象都包含一个指向构造函数的指针
-实例都包含一个原型对象的指针
+每个构造函数都有一个原型对象prototype
+原型对象都包含一个指向构造函数的指针constructor
+实例都包含一个原型对象的指针__proto\_\_
 
 - 原型链继承
   - 不能传父类参数
@@ -137,7 +137,7 @@ c1.__proto__.name; //undefined
 c1.__proto__.book; //undefined
 ```
 
-- 组合继承(优化)
+- 寄生组合继承
 
 ```javascript
 function p(name) {
@@ -152,7 +152,12 @@ function c(name, age) {
   this.age = age;
 }
 
-c.prototype = Object.create(p.prototype, { constructor: { value: c } });
+c.prototype = Object.create(p.prototype, { constructor: { 
+    value: c,
+    enumerable: false,
+    writable: true,
+    configurable: true } 
+});
 const c1 = new c("cc", 16);
 const c2 = new c("ccc", 18);
 c1.getName(); //cc
