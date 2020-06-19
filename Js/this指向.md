@@ -94,6 +94,45 @@ foo.apply(bar, [1, 2, 3]); // 数组将会被扩展，如下所示
 foo.call(bar, 1, 2, 3); // 传递到foo的参数是：a = 1, b = 2, c = 3
 ```
 
+```js
+Function.prototype.mycall = function (context) {
+  if (typeof this !== 'function') {
+    throw new TypeError('a.mycall is not function');
+  }
+  const c = context || window;
+  const arg = [...arguments].slice(1);
+  c[Symbol.for('call')] = this;
+  c[Symbol.for('call')](...arg);
+    
+  delete c[Symbol.for('call')];
+};
+Function.prototype.myapply = function (context) {
+  if (typeof this !== 'function') {
+    throw new TypeError('a.myapply is not function');
+  }
+  const c = context || window;
+  const arg = arguments[1] || [];
+  c[Symbol.for('apply')] = this;
+  c[Symbol.for('apply')](...arg);
+
+  delete c[Symbol.for('apply')];
+};
+Function.prototype.mybind = function (context) {
+  if (typeof this !== 'function') {
+    throw new TypeError('...');
+  }
+  const _ = this;
+  const arg = [...arguments].slice(1);
+  return function F() {
+    if (this instanceof F) {
+      return new _(...arg.concat(...arguments));
+    } else {
+      return _.myapply(context, arg.concat(...arguments));
+    }
+  };
+};
+```
+
 ```javascript
 function sayHi() {
   console.log("Hello,", this.name);
