@@ -126,3 +126,150 @@ res2:2
 
 */
 ```
+
+
+
+```js
+function fetchData(url) {
+  return function (cb) {
+    if (url !== "3") {
+      console.log(url);
+      setTimeout(function () {
+        cb(null, { status: 200, data: url });
+      }, 1000);
+    } else {
+      console.log(2);
+      cb(new Error("ww"));
+      // throw new Error("www");
+    }
+  };
+}
+function* gen() {
+  const r1 = yield fetch("https://v1.jinrishici.com/all.json");
+  const json1 = yield r1.json();
+  const r2 = yield fetch("https://v1.jinrishici.com/rensheng.json");
+  const json2 = yield r2.json();
+  const r3 = yield fetch("https://v1.jinrishici.com/shuqing/libie.json");
+  const json3 = yield r3.json();
+  var r4 = yield fetchData("1");
+  var r5 = yield fetchData("2");
+  var r6 = yield fetchData("3");
+  return [json1,json2,json3,r1, r2, r3];
+}
+```
+
+```js
+function isPromise(obj) {
+  return "function" == typeof obj.then;
+}
+function toPromise(obj) {
+  if (isPromise(obj)) return obj;
+  if ("function" == typeof obj) return thunkToPromise(obj);
+  return obj;
+}
+function thunkToPromise(fn) {
+  return new Promise(function (resolve, reject) {
+    fn(function (err, res) {
+      if (err) return reject(err);
+      resolve(res);
+    });
+  });
+}
+```
+
+```js
+//只支持yield Promise
+function run1(gen) {
+  const g = gen();
+  function next(data) {
+    const r = g.next(data);
+    if (r.done) return;
+    r.value.then((d) => next(d));
+  }
+  next();
+}
+run1(gen);
+//只支持yield function
+var g = gen();
+const r = g.next();
+r.value(function (d) {
+  const r2 = g.next(d);
+  r2.value(function (d) {
+    g.next(d);
+  });
+});
+//两者都支持
+function run(gen) {
+  const g = gen();
+  function next(data) {
+    const r = g.next(data);
+    if (r.done) return;
+    if (isPromise(r.value)) {
+      r.value.then((d) => next(d));
+    } else {
+      r.value(next);
+    }
+  }
+  next();
+}
+//支持返回值，错误处理
+function run(gen) {
+  const g = gen();
+  const promise = new Promise((resolve, reject) => {
+    function next(data) {
+      let r;
+      try {
+        r = g.next(data);
+      } catch (error) {
+        reject(error);
+      }
+      if (r.done) return resolve(r.value);
+
+      const v = toPromise(r.value);
+      v.then((d) => next(d)).catch((e) => reject(e));
+    }
+    next();
+  });
+  return promise;
+}
+//边界判断 优化
+function run(gen) {
+  return new Promise((resolve, reject) => {
+    if (typeof gen === "function") gen = gen();
+    if (!gen || typeof gen.next !== "function") return resolve(gen);
+    onFulfilled();
+    function onFulfilled(res) {
+      let r;
+      try {
+        r = gen.next(res);
+      } catch (error) {
+        return reject(error);
+      }
+      next(r);
+    }
+    function onRejected(err) {
+      let r;
+      try {
+        ret = gen.throw(err);
+      } catch (error) {
+        return reject(error);
+      }
+      next(r);
+    }
+    function next(r) {
+      if (r.done) return resolve(r.value);
+      var value = toPromise(r.value);
+      if (value && isPromise(value)) return value.then(onFulfilled, onRejected);
+      return onRejected(
+        new TypeError(
+          "You may only yield a function, promise " +
+            'but the following object was passed: "' +
+            String(ret.value) +
+            '"'
+        )
+      );
+    }
+  });
+}
+```
+
