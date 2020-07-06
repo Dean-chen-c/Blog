@@ -12,7 +12,15 @@ let b = async () => {
   console.log(4);
   console.log("2", a); // -> '2' 10
 };
+let c = async () => {
+  console.log('c1');
+  let aa=0;
+  aa = aa + (await 10);
+  console.log('c2');
+  console.log("c", aa); // -> '2' 10
+};
 b();
+c()
 console.log(2);
 a++;
 console.log(3);
@@ -25,3 +33,4 @@ console.log("1", a); // -> '1' 1
 // 4
 // 2 10
 ```
+
