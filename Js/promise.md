@@ -74,6 +74,16 @@ console.log('12')
       return a.then(c).then(pushValue)
   },Promise.resolve())
   aa.then(v=>console.log(v))
+  
+  function myPromise(value){
+  	return Promise.resolve(value)
+  }
+  const arr=[myPromise(1),myPromise(2),myPromise(3),myPromise(4)];
+  const result = [];
+  const list = arr.reduce((a, c) => {
+    return a.then(() => c).then((v) => result.push(v));
+  }, Promise.resolve());
+  list.then(v=>console.log(v))
   ```
 
 ```js
