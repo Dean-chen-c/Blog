@@ -471,3 +471,18 @@ module.exports = () => {
   };
 };
 ```
+
+
+
+常用的loader
+
+- sass-loader 将sass转换为css
+- bable-loader 将ES6+转移成ES5-
+- css-loader,style-loader：解析css文件，能够解释@import url()等
+- postcss-loader添加浏览器前缀，压缩 CSS 等
+
+plugin
+
+- clean-webpack-plugin 打包器清理源目录文件
+- html-webpack-plugin 创建一个 `html` 文件，并把 `webpack` 打包后的静态文件自动插入到这个 `html` 文件当中
+
