@@ -91,6 +91,9 @@ function type(obj) {
     .replace(/^\[object\s(\w+)\]$/, "$1")
     .toLowerCase();
 }
+function type(obj){
+return Object.prototype.toString.call(obj).split(' ')[1].slice(0,-1).toLowerCase()
+}
 ```
 
 ### null 类型判断

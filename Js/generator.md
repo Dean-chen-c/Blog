@@ -35,14 +35,14 @@ function run(genarator) {
   console.log(4);
   const promise = iteration.value;
   console.log(5);
-  promise.then(res => {
+  promise.then((res) => {
     console.log(6);
     const anotherIteration = iterator.next(res);
     console.log(anotherIteration);
     console.log(7);
     const p = anotherIteration.value;
     console.log(8);
-    p.then(r => {
+    p.then((r) => {
       console.log(9);
       const aaI = iterator.next(r);
       console.log(aaI);
@@ -54,11 +54,11 @@ function run(genarator) {
   const iterator = genarator();
   function iterate(iteration) {
     if (iteration.done) return iteration.value;
-    return promise.then(x => iterate(iterator.next(x)));
+    return promise.then((x) => iterate(iterator.next(x)));
   }
   return iterate(iterator.next());
 }
-run(function*() {
+run(function* () {
   console.log(2);
   const uri = "http://47.112.101.19:9990/sw-cms/api/queryAllChannel/cn";
   console.log(3);
@@ -81,9 +81,9 @@ function* gen() {
 }
 const g = gen();
 const c = g.next();
-c.value.then(res => {
+c.value.then((res) => {
   const c = g.next(res);
-  c.value.then(res => {
+  c.value.then((res) => {
     g.next(res);
   });
 });
@@ -127,8 +127,6 @@ res2:2
 */
 ```
 
-
-
 ```js
 function fetchData(url) {
   return function (cb) {
@@ -154,7 +152,7 @@ function* gen() {
   var r4 = yield fetchData("1");
   var r5 = yield fetchData("2");
   var r6 = yield fetchData("3");
-  return [json1,json2,json3,r1, r2, r3];
+  return [json1, json2, json3, r1, r2, r3];
 }
 ```
 
@@ -273,3 +271,181 @@ function run(gen) {
 }
 ```
 
+```javascript
+(function () {
+  let ContinueSentinel = {};
+
+  let mark = function (genFun) {
+    let generator = Object.create({
+      next: function (arg) {
+        return this._invoke("next", arg);
+      },
+    });
+    genFun.prototype = generator;
+    return genFun;
+  };
+
+  function wrap(innerFn, outerFn, self) {
+    let generator = Object.create(outerFn.prototype);
+
+    let context = {
+      done: false,
+      method: "next",
+      next: 0,
+      prev: 0,
+      abrupt: function (type, arg) {
+        let record = {};
+        record.type = type;
+        record.arg = arg;
+
+        return this.complete(record);
+      },
+      complete: function (record, afterLoc) {
+        if (record.type === "return") {
+          this.rval = this.arg = record.arg;
+          this.method = "return";
+          this.next = "end";
+        }
+
+        return ContinueSentinel;
+      },
+      stop: function () {
+        this.done = true;
+        return this.rval;
+      },
+    };
+
+    generator._invoke = makeInvokeMethod(innerFn, context);
+
+    return generator;
+  }
+
+  function makeInvokeMethod(innerFn, context) {
+    let state = "start";
+
+    return function invoke(method, arg) {
+      if (state === "completed") {
+        return { value: undefined, done: true };
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        state = "executing";
+
+        let record = {
+          type: "normal",
+          arg: innerFn.call(self, context),
+        };
+
+        if (record.type === "normal") {
+          state = context.done ? "completed" : "yield";
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done,
+          };
+        }
+      }
+    };
+  }
+
+  window.regeneratorRuntime = {};
+
+  window.regeneratorRuntime.wrap = wrap;
+  window.regeneratorRuntime.mark = mark;
+})();
+
+// let _marked = window.regeneratorRuntime.mark(helloWorldGenerator);
+
+// function helloWorldGenerator() {
+//   return window.regeneratorRuntime.wrap(
+//     function helloWorldGenerator$(_context) {
+//       while (1) {
+//         switch ((_context.prev = _context.next)) {
+//           case 0:
+//             _context.next = 2;
+//             return 'hello';
+
+//           case 2:
+//             _context.next = 4;
+//             return 'world';
+
+//           case 4:
+//             return _context.abrupt('return', 'ending');
+
+//           case 5:
+//           case 'end':
+//             return _context.stop();
+//         }
+//       }
+//     },
+//     _marked,
+//     this
+//   );
+// }
+
+// let hw = helloWorldGenerator();
+
+// console.log(hw.next());
+// console.log(hw.next());
+// console.log(hw.next());
+// console.log(hw.next());
+
+// function* generateRandoms(max) {
+//   max = max || 1;
+
+//   while (true) {
+//     let newMax = yield Math.random() * max;
+//     let newMin = yield Math.random() * 0.1;
+//     if (newMax !== undefined || newMin !== undefined) {
+//       max = newMax;
+//       console.log(newMin);
+//     }
+//   }
+// }
+// let a = generateRandoms();
+let _marked = window.regeneratorRuntime.mark(helloWorldGenerator);
+
+function helloWorldGenerator(max) {
+  let newMax;
+  return window.regeneratorRuntime.wrap(function helloWorldGenerator$(
+    _context
+  ) {
+    while (1) {
+      switch ((_context.prev = _context.next)) {
+        case 0:
+          max = max || 1;
+        // break;
+        // eslint-disable-next-line no-fallthrough
+        case 1:
+          _context.next = 4;
+          return Math.random() * max;
+
+        case 4:
+          newMax = _context.arg;
+
+          if (newMax !== undefined) {
+            max = newMax;
+          }
+
+          _context.next = 1;
+          break;
+
+        case 8:
+        case "end":
+          return _context.stop();
+        default:
+          return _context.stop();
+      }
+    }
+  },
+  _marked);
+}
+let hw = helloWorldGenerator();
+```
