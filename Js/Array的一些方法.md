@@ -59,6 +59,7 @@ console.log(toObject);
 push pop unshift shift
 
 ```javascript
+
 ```
 
 fill
@@ -111,4 +112,32 @@ const _selfFlat = function(n = 1) {
 Array.prototype.selfFlat = _selfFlat;
 const a = [1, 2, 3, 4, [5, 6, [7, 8, 9]]];
 console.log(a.selfFlat(1));
+
+
+Array.prototype.myflat = function (deep=1) {
+  const result = [];
+  const _ = this;
+  function fn(ctx, d) {
+    let _d = d;
+    if (_d < 0) return result.push(ctx);
+    for (let i = 0, l = ctx.length; i < l; i++) {
+      const e = ctx[i];
+      if (ctx === _) {
+        _d = deep;
+      }
+      if (Array.isArray(e)) {
+        fn(e, --_d);
+      } else {
+        result.push(e);
+      }
+    }
+  }
+  fn(_, deep);
+  return result;
+};
+console.log([1, [2], [3, [4]], [[[5, [6]]]], 7]);
+console.log([1, [2], [3, [4]], [[[5, [6]]]], 7].myflat());
+console.log([1, [2], [3, [4]], [[[5, [6]]]], 7].myflat(2));
+console.log([1, [2], [3, [4]], [[[5, [6]]]], 7].myflat(3));
+console.log([1, [2], [3, [4]], [[[5, [6]]]], 7].myflat(Infinity));
 ```
