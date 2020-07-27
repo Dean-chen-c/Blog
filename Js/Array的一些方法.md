@@ -59,6 +59,7 @@ console.log(toObject);
 push pop unshift shift
 
 ```javascript
+
 ```
 
 fill
@@ -89,26 +90,38 @@ flat
 
 function myFlat(arr) {
   while (arr.some(Array.isArray())) {
-    //  arr = ([]).concat.apply([], arr);
     arr = [].concat(...arr);
   }
   return arr;
 }
 
-const _selfFlat = function(n = 1) {
-  const arr = Array.prototype.slice.call(this);
-  if (n <= 0) {
-    return arr;
-  }
-  return arr.reduce((pre, cur, index) => {
-    if (Array.isArray(cur)) {
-      return [...pre, ..._selfFlat.call(cur, n - 1)];
+Array.prototype.myflat = function (deep) {
+  if (deep === 0) return this;
+  return this.reduce((a, c) => {
+    if (Array.isArray(c)) {
+      return [...a, ...c.myflat(deep - 1)];
     } else {
-      return [...pre, cur];
+      return [...a, c];
     }
   }, []);
 };
-Array.prototype.selfFlat = _selfFlat;
 const a = [1, 2, 3, 4, [5, 6, [7, 8, 9]]];
-console.log(a.selfFlat(1));
+console.log(a.myflat(1));
+
+Array.prototype.myflat = function (deep) {
+  const _ = this;
+  const result = [];
+  function fn(ctx, d) {
+    if (d <= 0) return result.push(...ctx);
+    ctx.forEach((item) => {
+      if (Array.isArray(item)) {
+        fn(item, d - 1);
+      } else {
+        result.push(item);
+      }
+    });
+  }
+  fn(_, deep);
+  return result;
+};
 ```
