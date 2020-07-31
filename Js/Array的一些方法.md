@@ -1,14 +1,14 @@
 map 作用是生成一个新数组，遍历原数组，将每个元素拿出来做一些变换然后放入到新的数组中。
 
 ```javascript
-[1, 2, 3].map(v => v + 1); // -> [2, 3, 4]
+[1, 2, 3].map((v) => v + 1); // -> [2, 3, 4]
 ```
 
 filter 的作用也是生成一个新数组，在遍历数组的时候将返回值为 true 的元素放入新数组，我们可以利用这个函数删除一些不需要的元素
 
 ```javascript
 let array = [0, 1, 2, 4, 6];
-let newArray = array.filter(item => item !== 6);
+let newArray = array.filter((item) => item !== 6);
 console.log(newArray); // [1, 2, 4]
 let newArray1 = array.filter(Boolean);
 console.log(newArray1); // [1, 2, 4, 6]
@@ -59,7 +59,6 @@ console.log(toObject);
 push pop unshift shift
 
 ```javascript
-
 ```
 
 fill
@@ -75,7 +74,7 @@ every
 - 妙用如果存在 false 直接跳出循环(some 相反 存在 true 跳出)
 
 ```javascript
-[1, 3, 4, 5, -1, 4, 4].every(item => {
+[1, 3, 4, 5, -1, 4, 4].every((item) => {
   console.log(item);
   return item > 0;
 });
@@ -90,47 +89,36 @@ flat
 
 function myFlat(arr) {
   while (arr.some(Array.isArray())) {
-    //  arr = ([]).concat.apply([], arr);
     arr = [].concat(...arr);
   }
   return arr;
 }
 
-const _selfFlat = function(n = 1) {
-  const arr = Array.prototype.slice.call(this);
-  if (n <= 0) {
-    return arr;
-  }
-  return arr.reduce((pre, cur, index) => {
-    if (Array.isArray(cur)) {
-      return [...pre, ..._selfFlat.call(cur, n - 1)];
+Array.prototype.myflat = function (deep) {
+  if (deep === 0) return this;
+  return this.reduce((a, c) => {
+    if (Array.isArray(c)) {
+      return [...a, ...c.myflat(deep - 1)];
     } else {
-      return [...pre, cur];
+      return [...a, c];
     }
   }, []);
 };
-Array.prototype.selfFlat = _selfFlat;
 const a = [1, 2, 3, 4, [5, 6, [7, 8, 9]]];
-console.log(a.selfFlat(1));
+console.log(a.myflat(1));
 
-
-Array.prototype.myflat = function (deep=1) {
-  const result = [];
+Array.prototype.myflat = function (deep) {
   const _ = this;
+  const result = [];
   function fn(ctx, d) {
-    let _d = d;
-    if (_d < 0) return result.push(ctx);
-    for (let i = 0, l = ctx.length; i < l; i++) {
-      const e = ctx[i];
-      if (ctx === _) {
-        _d = deep;
-      }
-      if (Array.isArray(e)) {
-        fn(e, --_d);
+    if (d <= 0) return result.push(...ctx);
+    ctx.forEach((item) => {
+      if (Array.isArray(item)) {
+        fn(item, d - 1);
       } else {
-        result.push(e);
+        result.push(item);
       }
-    }
+    });
   }
   fn(_, deep);
   return result;

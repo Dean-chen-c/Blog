@@ -19,3 +19,19 @@ for (var i = 0; i < 3; i++) {
 // abc
 ```
 
+```
+let myname= 'aaa'
+{
+  console.log(myname) 
+  let myname= 'aaaa'
+}
+```
+
+```
+console.log(myname) 
+let myname= 'aaa'
+function myname(){
+
+}
+```
+
