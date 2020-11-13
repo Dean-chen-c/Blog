@@ -234,6 +234,46 @@ myPromise.resolve = function (param) {
     }
   });
 };
+
+//Promise.all
+Promise.all = function (promises) {
+  return new Promise((resolve, reject) => {
+    let index = 0;
+    let result = [];
+    if (promises.length === 0) {
+      resolve(result);
+    } else {
+      for (let i = 0; i < promises.length; i++) {
+        Promise.resolve(promises[i]).then(
+          (data) => {
+            result[i] = data;
+            index++;
+            if (index === promises.length) {
+              resolve(result);
+            }
+          },
+          (err) => {
+            reject(err);
+            return;
+          }
+        );
+      }
+    }
+  });
+};
+
+//Promise.reject
+Promise.reject = function (reason) {
+  return new Promise((resolve, reject) => {
+    reject(reason);
+  });
+};
+
+//Promise.prototype.catch
+Promise.prototype.catch = function (onRejected) {
+  return this.then(null, onRejected);
+};
+
 module.exports = myPromise;
 
 /*
