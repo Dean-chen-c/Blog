@@ -486,3 +486,215 @@ plugin
 - clean-webpack-plugin 打包器清理源目录文件
 - html-webpack-plugin 创建一个 `html` 文件，并把 `webpack` 打包后的静态文件自动插入到这个 `html` 文件当中
 
+清空缓存目录
+
+CleanWebpackPlugin()
+
+
+
+```
+options: {
+  "presets": [["@babel/preset-env", {
+    "useBuiltIns": 'usage',
+    targets: {
+      chrome: '67'              // 这个版本支持es6，所以babel实际上没有生效
+    }
+  }]]
+}
+
+npm install --save-dev @babel/plugin-transform-runtime
+npm install --save @babel/runtime
+npm install @babel/runtime-corejs2
+
+options:{
+    plugins: [
+            [
+              "@babel/plugin-transform-runtime",
+              {
+                "corejs": 2,
+                "helpers": true,
+                "regenerator": true,
+                "useESModules": false,
+              }
+            ]
+          ]
+}
+删掉mains.js中的import "@babel/polyfill" ,去掉之前的presets，添加plugins
+```
+
+
+
+Hot update
+
+```
+devServer: {
+    contentBase: './dist',
+    open: true,
+    hot: true,       // 样式文件更改时，只修改样式文件，不刷新页面
+    hotOnly:true,    // 功能不生效，也不要浏览器自动刷新（js模块更新时，不影响其他模块）
+  },
+ plugins: [
+    new HtmlWebpackPlugin({ template: 'src/index.html' }),
+    new CleanWebpackPlugin(),
+   new webpack.HotModuleReplacementPlugin()       // 加个这玩意
+],
+
+使用
+// 手动执行热模块更新，number修改时页面不刷新，但是会删除number的内容，重新执行number
+import content from './content'
+import number from './number'
+import './index.scss'
+
+content()
+number()
+
+if (module.hot) {
+  module.hot.accept('./number', () => {
+    document.body.removeChild(document.getElementById('num'))
+    number()
+  })
+}
+
+number.js:
+    export default () => {
+      var button = document.createElement('div')
+      button.setAttribute('id', 'num')
+      button.innerText = '100'
+      document.body.appendChild(button)
+    }
+```
+
+
+
+Tree shaking
+
+```
+optimization: {
+    usedExports: true         // 把用到的export都表示出来，但是不会删除`
+  },
+
+package.json
+
+"sideEffects": false,     // 对所有的模块都执行tree shaking，或者["*.css"],略过css文件
+```
+
+
+
+代码分割
+
+
+
+```
+splitChunks: {
+  chunks: 'all',     // initial:同步，async：异步，all：全部
+  minSize: 20000,      // 文件高于此才会打包
+  minRemainingSize: 0,
+  maxSize: 0,        // 文件高于此，会进一步分割，0就不管
+  minChunks: 1,       // 文件至少出现1次，才会打包
+  maxAsyncRequests: 30, // 同时打包的数量
+  maxInitialRequests: 30,  // 首页同时打包数量
+  automaticNameDelimiter: '~',  // 连接符，后面如果定义filename，就会覆盖这个
+  enforceSizeThreshold: 50000,
+  //异步打包不走这一步
+  cacheGroups: {
+    defaultVendors: {
+      test: /[\\/]node_modules[\\/]/,   // 只打包node_modules的文件
+      priority: -10，               // 优先级，越大优先级越高
+      filename: 'vendors.js'     // 把所有打包文件都放在一个文件里
+    },
+    default: {
+      minChunks: 2,           // 如果是1的话，minSize是0，mian.js也可能会被打包分割
+      priority: -20,
+      reuseExistingChunk: true,  // 允许打包代码复用
+      filename: 'default.js'     // 
+    }
+  }
+}
+```
+
+
+
+从js文件中分离出css
+
+```
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+plugins: [
+    // 可以把多个css合并到一起
+    new MiniCssExtractPlugin({
+        filename: '[name].css',   // 和js一样，直接引用到html中的用这个，间接引用的用chunk
+        chunkFilename: '[name].chunk.css'
+    })
+],
+```
+
+压缩css
+
+```
+const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')
+optimization: {
+    minimizer: [new OptimizeCssAssetsWebpackPlugin({})]
+  },
+```
+
+
+
+预加载
+
+```
+<link rel="prefetch" href="clickk.js">
+
+document.addEventListener('click', () => {
+  import(/* webpackPrefetch: true */ './click.js').then(({ default: getLodash }) => {
+    getLodash()
+  })
+})
+```
+
+
+
+stats.json 做分析
+
+```
+"start-dev": "webpack  --profile --josn > stats.json  --config ./build/webpack.dev.js"
+```
+
+
+
+manifest.json是扩展的配置文件，指明了扩展的各种信息。
+
+PWA
+
+
+
+contenthash使用
+
+重新打包的时候，js文件没变hash就不会变化
+
+
+
+```
+optimization: {
+    runtimeChunk: {
+      name: 'runtime'
+    }
+}
+```
+
+
+
+垫片
+
+```
+jquery.ui.js:里面使用了jquery，但是index.js引用的时候无法修改库里面的代码，在外部import无法生效
+export function ui() {
+  $('body').css('background', 'red')
+}
+全局引入包
+plugins: [
+  new webpack.ProvidePlugin({
+  $: 'jquery',
+  _join: ['lodash', 'join']   // 高端用法，_join是lodash里面的join方法
+  })
+]
+```
+
