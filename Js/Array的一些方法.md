@@ -22,6 +22,20 @@ reduce
 const arr = [1, 2, 3];
 const sum = arr.reduce((acc, current) => acc + current, 0);
 console.log(sum);
+
+const reduce =function(callBack,initialValue){
+  if(!Array.isArray(this)){
+    throw new TypeError('reduce is not a function')
+  }
+  let v = initialValue === undefined ? this[0] : initialValue;
+
+  let i = initialValue === undefined ? 1 : 0;
+
+  for(;i<this.length;i++){
+    v = callBack(v,this[i],i,this)
+  }
+  return v;
+}
 ```
 
 - 实现 map 的作用
@@ -59,6 +73,7 @@ console.log(toObject);
 push pop unshift shift
 
 ```javascript
+
 ```
 
 fill
