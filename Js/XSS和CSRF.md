@@ -22,6 +22,14 @@ document.body.appendChild(img)
    2. 移除用户输入的Style节点、Script节点、Iframe节点
 3. 避免直接对HTML Entity进行解码。使用DOM Parse转换，校正不配对的DOM标签。 html encode进行转译
 
+## Referrer
+
+referrer泄漏   no-referrer-when-downgrade
+
+##### 防护
+
+Referrer-Policy 设置strict-origin-when-cross-origin
+
 ## CSRF
 
 CSRF（Cross-site request forgery）跨站请求伪造：攻击者诱导受害者进入第三方网站，在第三方网站中，向被攻击网站发送跨站请求。利用受害者在被攻击网站已经获取的注册凭证，绕过后台的用户验证，达到冒充用户对被攻击的网站执行某项操作的目的。
@@ -72,6 +80,15 @@ X-FRAME-OPTIONS
 ## DDOS攻击
 
 DDOS（Distributed Denial Of Service）分布式拒绝服务。利用合理的请求造成资源过载，导致服务不可用。
+
+#### 特征
+
+- 来自单个 IP 地址或 IP 范围的可疑流量
+- 来自共享单个行为特征（例如设备类型、地理位置或 Web 浏览器版本）的用户的大量流量
+- 对单个页面或端点的请求数量出现不明原因的激增
+- 奇怪的流量模式，例如一天中非常规时间段的激增或看似不自然的模式（例如，每 10 分钟出现一次激增）
+
+#### 类型
 
 - 网络层
 
